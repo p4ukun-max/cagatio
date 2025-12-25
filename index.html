@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>El Caga Tió</title>
+
+<style>
+body {
+  margin: 0;
+  text-align: center;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(#b30000, #7a0000);
+  color: white;
+}
+
+h1 { margin: 10px 0; }
+
+#tio { width: 180px; }
+
+#tio.hit { animation: shake 0.3s; }
+
+@keyframes shake {
+  0% { transform: rotate(0); }
+  25% { transform: rotate(-5deg); }
+  50% { transform: rotate(5deg); }
+  75% { transform: rotate(-5deg); }
+  100% { transform: rotate(0); }
+}
+
+#boxes {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 15px;
+}
+
+.box {
+  width: 90px;
+  height: 90px;
+  background: #8b4513;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.6s ease-in-out;
+}
+
+.box img {
+  width: 60px;
+  transition: opacity 0.3s ease;
+}
+
+.box.hide-content img { opacity: 0; }
+
+button {
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.hidden { display: none; }
+
+#kid img { width: 80px; }
+
+#message {
+  margin-top: 10px;
+  font-size: 18px;
+  min-height: 24px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>?? El Caga Tió</h1>
+
+<img id="tio" src="img/tio.png">
+
+<div id="boxes"></div>
+
+<button id="hitBtn">Pegar al Tió ??</button>
+
+<div id="kid" class="hidden">
+  <img src="img/kid.png">
+  <p id="request"></p>
+</div>
+
+<p id="message"></p>
+
+<audio id="hitSound" src="sounds/hit.mp3"></audio>
+
+<script>
+const boxesContainer = document.getElementById("boxes");
+const hitBtn = document.getElementById("hitBtn");
+const tio = document.getElementById("tio");
+const kid = document.getElementById("kid");
+const requestText = document.getElementById("request");
+const message = document.getElementById("message");
+const hitSound = document.getElementById("hitSound");
+
+const gifts = {
+  juguete: ["juguete1","juguete2","juguete3","juguete4","juguete5"],
+  ropa: ["ropa1","ropa2","ropa3","ropa4","ropa5"],
+  dulce: ["dulce1","dulce2","dulce3","dulce4","dulce5"],
+  libro: ["libro1","libro2","libro3","libro4","libro5"],
+  otro: ["otro1","otro2","otro3","otro4","otro5"]
+};
+
+let correctTheme = "";
+let canChoose = false;
+let boxes = [];
+
+/* Crear cajas con imágenes aleatorias */
+function createBoxes() {
+  boxesContainer.innerHTML = "";
+  boxes = [];
+
+  for (const theme in gifts) {
+    const imgName = gifts[theme][Math.floor(Math.random() * 5)];
+
+    const box = document.createElement("div");
+    box.className = "box";
+    box.dataset.item = theme;
+
+    const img = document.createElement("img");
+    img.src = `img/${theme}/${imgName}.png`;
+
+    box.appendChild(img);
+    boxesContainer.appendChild(box);
+    boxes.push(box);
+
+    box.addEventListener("click", () => {
+      if (!canChoose) return;
+
+      box.classList.remove("hide-content");
+
+      if (box.dataset.item === correctTheme) {
+        message.textContent = "?? ¡Regalo correcto!";
+      } else {
+        message.textContent = "?? ¡Carbón!";
+      }
+      canChoose = false;
+    });
+  }
+}
+
+/* Niño pide regalo */
+function askKid() {
+  const themes = Object.keys(gifts);
+  correctTheme = themes[Math.floor(Math.random() * themes.length)];
+  requestText.textContent = `Quiero un regalo de ${correctTheme}`;
+  kid.classList.remove("hidden");
+}
+
+/* Pegar al Tió */
+hitBtn.addEventListener("click", () => {
+  createBoxes();
+  askKid();
+
+  hitSound.currentTime = 0;
+  hitSound.play();
+
+  tio.classList.add("hit");
+  setTimeout(() => tio.classList.remove("hit"), 300);
+
+  boxes.forEach(b => b.classList.add("hide-content"));
+  setTimeout(shuffleBoxes, 400);
+});
+
+/* Mezclar */
+function shuffleBoxes() {
+  canChoose = false;
+  message.textContent = "";
+
+  boxes.forEach(box => {
+    const x = Math.random() * 200 - 100;
+    const y = Math.random() * 200 - 100;
+    const r = Math.random() * 360;
+    box.style.transform = `translate(${x}px, ${y}px) rotate(${r}deg)`;
+  });
+
+  setTimeout(() => {
+    boxes.forEach(box => box.style.transform = "translate(0,0) rotate(0)");
+    canChoose = true;
+  }, 1200);
+}
+
+/* Inicial */
+createBoxes();
+</script>
+
+</body>
+</html>
