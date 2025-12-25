@@ -2,53 +2,86 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>El Caga Tió</title>
 
 <style>
+/* ===== FONDO NAVIDEÑO ===== */
 body {
   margin: 0;
-  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   font-family: Arial, sans-serif;
-  background: linear-gradient(#b30000, #7a0000);
   color: white;
+  background:
+    radial-gradient(circle at top, #ff4d4d, #8b0000),
+    linear-gradient(180deg, rgba(255,255,255,0.15), transparent);
 }
 
-h1 { margin: 10px 0; }
-
-#tio { width: 180px; }
-
-#tio.hit { animation: shake 0.3s; }
-
-@keyframes shake {
-  0% { transform: rotate(0); }
-  25% { transform: rotate(-5deg); }
-  50% { transform: rotate(5deg); }
-  75% { transform: rotate(-5deg); }
-  100% { transform: rotate(0); }
+/* Nieve */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(white 2px, transparent 2px);
+  background-size: 60px 60px;
+  opacity: 0.18;
+  animation: snow 25s linear infinite;
+  pointer-events: none;
 }
 
+@keyframes snow {
+  from { background-position: 0 0; }
+  to { background-position: 0 1200px; }
+}
+
+/* ===== CONTENEDOR ===== */
+.game-container {
+  width: 100%;
+  max-width: 360px;
+  padding: 16px;
+  text-align: center;
+  background: rgba(0,0,0,0.25);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+h1 {
+  margin: 10px 0;
+}
+
+/* ===== TIO ===== */
+#tio {
+  width: 160px;
+  margin: 10px auto;
+  display: block;
+}
+
+/* ===== CAJAS ===== */
 #boxes {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 2x2 */
-  gap: 10px;
-  max-width: 220px;
-  margin: 15px auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin: 20px auto;
 }
 
 .box {
-  width: 90px;
+  width: 100%;
   height: 90px;
   background: #8b4513;
-  border-radius: 12px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 0.6s ease-in-out;
+  transition: transform 0.6s ease;
 }
 
 .box img {
-  width: 55px;
+  width: 70px;
   transition: opacity 0.3s ease;
 }
 
@@ -56,25 +89,25 @@ h1 { margin: 10px 0; }
   opacity: 0;
 }
 
-.box img {
-  width: 60px;
-  transition: opacity 0.3s ease;
-}
-
-.box.hide-content img { opacity: 0; }
-
+/* ===== BOTÓN ===== */
 button {
-  padding: 12px 20px;
+  padding: 14px 22px;
   font-size: 16px;
-  border-radius: 8px;
+  border-radius: 10px;
   border: none;
   cursor: pointer;
+  background: linear-gradient(#ffd700, #ffb700);
+  color: #7a0000;
+  font-weight: bold;
+  box-shadow: 0 6px 0 #cc9000;
 }
 
-.hidden { display: none; }
+button:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #cc9000;
+}
 
-#kid img { width: 80px; }
-
+/* ===== MENSAJE ===== */
 #message {
   margin-top: 10px;
   font-size: 18px;
@@ -85,20 +118,19 @@ button {
 
 <body>
 
-<h1>?? El Caga Tió</h1>
+<div class="game-container">
 
-<img id="tio" src="img/tio.png">
+  <h1>?? El Caga Tió</h1>
 
-<div id="boxes"></div>
+  <img id="tio" src="img/tio/sprite_0.png">
 
-<button id="hitBtn">Pegar al Tió ??</button>
+  <div id="boxes"></div>
 
-<div id="kid" class="hidden">
-  <img src="img/kid.png">
-  <p id="request"></p>
+  <button id="hitBtn">?? Pegar al Tió</button>
+
+  <p id="message"></p>
+
 </div>
-
-<p id="message"></p>
 
 <audio id="hitSound" src="hit.wav"></audio>
 
@@ -106,8 +138,6 @@ button {
 const boxesContainer = document.getElementById("boxes");
 const hitBtn = document.getElementById("hitBtn");
 const tio = document.getElementById("tio");
-const kid = document.getElementById("kid");
-const requestText = document.getElementById("request");
 const message = document.getElementById("message");
 const hitSound = document.getElementById("hitSound");
 
@@ -119,21 +149,32 @@ const gifts = {
   otro: ["otro1","otro2","otro3","otro4","otro5"]
 };
 
-let correctTheme = "";
-let canChoose = false;
+const tioSprites = [
+  "img/tio/sprite_0.png",
+  "img/tio/sprite_1.png",
+  "img/tio/sprite_2.png",
+  "img/tio/sprite_3.png",
+  "img/tio/sprite_4.png",
+  "img/tio/sprite_5.png",
+  "img/tio/sprite_6.png"
+];
+
 let boxes = [];
+let canChoose = false;
+let correctTheme = "";
+let isAnimatingTio = false;
+
+/* ===== CREAR 5 CAJAS ===== */
 function createBoxes() {
   boxesContainer.innerHTML = "";
   boxes = [];
 
-  // Elegimos SOLO 4 temas
   const themes = Object.keys(gifts)
     .sort(() => Math.random() - 0.5)
-    .slice(0, 4);
+    .slice(0, 5);
 
   themes.forEach(theme => {
     const imgName = gifts[theme][Math.floor(Math.random() * 5)];
-
     const box = document.createElement("div");
     box.className = "box";
     box.dataset.item = theme;
@@ -150,59 +191,70 @@ function createBoxes() {
 
       box.classList.remove("hide-content");
 
-      if (box.dataset.item === correctTheme) {
-        message.textContent = "?? ¡Regalo correcto!";
-      } else {
-        message.textContent = "?? ¡Carbón!";
-      }
+      message.textContent =
+        box.dataset.item === correctTheme
+          ? "?? ¡Regalo correcto!"
+          : "?? ¡Carbón!";
+
       canChoose = false;
     });
   });
 }
 
+/* ===== ANIMACIÓN SPRITES TIO ===== */
+function animateTio() {
+  if (isAnimatingTio) return;
+  isAnimatingTio = true;
 
-/* Niño pide regalo */
-function askKid() {
-  const themes = Object.keys(gifts);
-  correctTheme = themes[Math.floor(Math.random() * themes.length)];
-  requestText.textContent = `Quiero un regalo de ${correctTheme}`;
-  kid.classList.remove("hidden");
+  let frame = 0;
+  const interval = setInterval(() => {
+    tio.src = tioSprites[frame];
+    frame++;
+
+    if (frame >= tioSprites.length) {
+      clearInterval(interval);
+      tio.src = tioSprites[0];
+      isAnimatingTio = false;
+    }
+  }, 70);
 }
 
-/* Pegar al Tió */
-hitBtn.addEventListener("click", () => {
-  askKid();
-
-  hitSound.currentTime = 0;
-  hitSound.play();
-
-  tio.classList.add("hit");
-  setTimeout(() => tio.classList.remove("hit"), 300);
-
-  // ?? ahora se esconden las imágenes
-  boxes.forEach(b => b.classList.add("hide-content"));
-
-  setTimeout(shuffleBoxes, 400);
-});
-
-/* Mezclar */
+/* ===== MEZCLAR CAJAS ===== */
 function shuffleBoxes() {
   canChoose = false;
   message.textContent = "";
 
-  boxes.forEach(box => {
-    const x = Math.random() * 80 - 40;
-    const y = Math.random() * 80 - 40;
-    const r = Math.random() * 180;
-    box.style.transform = `translate(${x}px, ${y}px) rotate(${r}deg)`;
+  boxes.forEach((box, i) => {
+    setTimeout(() => {
+      const offset = Math.random() * 40 - 20;
+      box.style.transform = `translateY(${offset}px) rotate(${Math.random() * 10 - 5}deg)`;
+    }, i * 80);
   });
 
   setTimeout(() => {
-    boxes.forEach(box => box.style.transform = "translate(0,0) rotate(0)");
+    boxes.sort(() => Math.random() - 0.5);
+    boxes.forEach(box => boxesContainer.appendChild(box));
+    boxes.forEach(box => box.style.transform = "translateY(0) rotate(0)");
     canChoose = true;
   }, 900);
 }
-/* Inicial */
+
+/* ===== BOTÓN ===== */
+hitBtn.addEventListener("click", () => {
+  if (isAnimatingTio) return;
+
+  correctTheme = Object.keys(gifts)[Math.floor(Math.random() * 5)];
+
+  hitSound.currentTime = 0;
+  hitSound.play();
+
+  animateTio();
+
+  boxes.forEach(b => b.classList.add("hide-content"));
+  setTimeout(shuffleBoxes, 300);
+});
+
+/* ===== INICIO ===== */
 createBoxes();
 </script>
 
