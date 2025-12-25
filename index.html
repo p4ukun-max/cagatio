@@ -2,87 +2,158 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>El Caga Tió</title>
 
 <style>
+/* ====== FONDO NAVIDEÑO ====== */
 body {
   margin: 0;
   text-align: center;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(#b30000, #7a0000);
+  font-family: 'Trebuchet MS', Arial, sans-serif;
   color: white;
+  background:
+    radial-gradient(circle at top, #ff3b3b, #8b0000),
+    repeating-linear-gradient(
+      45deg,
+      rgba(255,255,255,0.05),
+      rgba(255,255,255,0.05) 10px,
+      transparent 10px,
+      transparent 20px
+    );
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-h1 { margin: 10px 0; }
+/* Copos de nieve */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(white 2px, transparent 2px);
+  background-size: 50px 50px;
+  opacity: 0.15;
+  animation: snow 20s linear infinite;
+  pointer-events: none;
+}
 
-#tio { width: 180px; }
+@keyframes snow {
+  from { background-position: 0 0; }
+  to { background-position: 0 1000px; }
+}
 
-#tio.hit { animation: shake 0.3s; }
+h1 {
+  margin: 10px 0;
+  font-size: clamp(24px, 5vw, 36px);
+}
+
+/* ====== TIO ====== */
+#tio {
+  width: clamp(140px, 40vw, 200px);
+  margin-bottom: 10px;
+}
+
+#tio.hit {
+  animation: shake 0.3s;
+}
 
 @keyframes shake {
   0% { transform: rotate(0); }
-  25% { transform: rotate(-5deg); }
-  50% { transform: rotate(5deg); }
-  75% { transform: rotate(-5deg); }
+  25% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
+  75% { transform: rotate(-8deg); }
   100% { transform: rotate(0); }
 }
 
+/* ====== CAJAS ====== */
 #boxes {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin: 15px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 14px;
+  max-width: 500px;
+  margin: 20px auto;
+  padding: 10px;
 }
 
 .box {
-  width: 90px;
-  height: 90px;
-  background: #8b4513;
-  border-radius: 10px;
+  aspect-ratio: 1;
+  background: linear-gradient(145deg, #a0522d, #6f3618);
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 0.6s ease-in-out;
+  box-shadow: 0 8px 0 #4d260f, 0 12px 18px rgba(0,0,0,0.4);
+  transition: transform 0.6s ease, box-shadow 0.3s ease;
+  position: relative;
+}
+
+.box:active {
+  transform: translateY(6px);
+  box-shadow: 0 2px 0 #4d260f;
 }
 
 .box img {
-  width: 60px;
-  transition: opacity 0.3s ease;
+  width: 65%;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-.box.hide-content img { opacity: 0; }
+.box.hide-content img {
+  opacity: 0;
+  transform: scale(0.5);
+}
 
+/* ====== BOTÓN ====== */
 button {
-  padding: 12px 20px;
+  padding: 14px 22px;
   font-size: 16px;
-  border-radius: 8px;
+  border-radius: 10px;
   border: none;
   cursor: pointer;
+  background: linear-gradient(#ffd700, #ffb700);
+  color: #7a0000;
+  font-weight: bold;
+  box-shadow: 0 6px 0 #cc9000;
+  margin-bottom: 10px;
+}
+
+button:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #cc9000;
+}
+
+/* ====== NIÑO ====== */
+#kid img {
+  width: clamp(60px, 20vw, 90px);
 }
 
 .hidden { display: none; }
 
-#kid img { width: 80px; }
-
+/* ====== MENSAJE ====== */
 #message {
   margin-top: 10px;
-  font-size: 18px;
-  min-height: 24px;
+  font-size: clamp(16px, 4vw, 20px);
+  min-height: 26px;
+}
+
+/* ====== MÓVIL ====== */
+@media (max-width: 480px) {
+  #boxes {
+    max-width: 90%;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<h1>?? El Caga Tió</h1>
+<h1>🎄 El Caga Tió</h1>
 
 <img id="tio" src="img/tio.png">
 
 <div id="boxes"></div>
 
-<button id="hitBtn">Pegar al Tió ??</button>
+<button id="hitBtn">🪵 Pegar al Tió</button>
 
 <div id="kid" class="hidden">
   <img src="img/kid.png">
@@ -114,16 +185,17 @@ let correctTheme = "";
 let canChoose = false;
 let boxes = [];
 
-/* Crear cajas con imágenes aleatorias */
+/* Crear cajas */
 function createBoxes() {
   boxesContainer.innerHTML = "";
   boxes = [];
 
-  for (const theme in gifts) {
-    const imgName = gifts[theme][Math.floor(Math.random() * 5)];
+  const themes = Object.keys(gifts).sort(() => Math.random() - 0.5);
 
+  themes.forEach(theme => {
+    const imgName = gifts[theme][Math.floor(Math.random() * 5)];
     const box = document.createElement("div");
-    box.className = "box";
+    box.className = "box hide-content";
     box.dataset.item = theme;
 
     const img = document.createElement("img");
@@ -139,13 +211,13 @@ function createBoxes() {
       box.classList.remove("hide-content");
 
       if (box.dataset.item === correctTheme) {
-        message.textContent = "?? ¡Regalo correcto!";
+        message.textContent = "🎁 ¡Regalo correcto!";
       } else {
-        message.textContent = "?? ¡Carbón!";
+        message.textContent = "💩 ¡Carbón!";
       }
       canChoose = false;
     });
-  }
+  });
 }
 
 /* Niño pide regalo */
@@ -167,18 +239,17 @@ hitBtn.addEventListener("click", () => {
   tio.classList.add("hit");
   setTimeout(() => tio.classList.remove("hit"), 300);
 
-  boxes.forEach(b => b.classList.add("hide-content"));
-  setTimeout(shuffleBoxes, 400);
+  shuffleBoxes();
 });
 
-/* Mezclar */
+/* Desordenar de verdad */
 function shuffleBoxes() {
   canChoose = false;
   message.textContent = "";
 
   boxes.forEach(box => {
-    const x = Math.random() * 200 - 100;
-    const y = Math.random() * 200 - 100;
+    const x = Math.random() * 160 - 80;
+    const y = Math.random() * 160 - 80;
     const r = Math.random() * 360;
     box.style.transform = `translate(${x}px, ${y}px) rotate(${r}deg)`;
   });
@@ -186,7 +257,7 @@ function shuffleBoxes() {
   setTimeout(() => {
     boxes.forEach(box => box.style.transform = "translate(0,0) rotate(0)");
     canChoose = true;
-  }, 1200);
+  }, 1000);
 }
 
 /* Inicial */
