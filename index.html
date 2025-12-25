@@ -202,22 +202,32 @@ function createBoxes() {
 }
 
 /* ===== ANIMACIÓN SPRITES TIO ===== */
+  // ===== PRECARGA DE SPRITES =====
+const preloadedSprites = [];
+tioSprites.forEach(src => {
+  const img = new Image();
+  img.src = src;
+  preloadedSprites.push(img);
+});
 function animateTio() {
   if (isAnimatingTio) return;
   isAnimatingTio = true;
 
   let frame = 0;
+  const totalFrames = tioSprites.length;
+
   const interval = setInterval(() => {
     tio.src = tioSprites[frame];
     frame++;
 
-    if (frame >= tioSprites.length) {
+    if (frame >= totalFrames) {
       clearInterval(interval);
       tio.src = tioSprites[0];
       isAnimatingTio = false;
     }
-  }, 70);
+  }, 100);
 }
+
 
 /* ===== MEZCLAR CAJAS ===== */
 function shuffleBoxes() {
@@ -242,18 +252,16 @@ function shuffleBoxes() {
 /* ===== BOTÓN ===== */
 hitBtn.addEventListener("click", () => {
   if (isAnimatingTio) return;
-
   correctTheme = Object.keys(gifts)[Math.floor(Math.random() * 5)];
 
   hitSound.currentTime = 0;
   hitSound.play();
 
-  animateTio();
+  animateTio(); // 🔥 AHORA SÍ FUNCIONA
 
   boxes.forEach(b => b.classList.add("hide-content"));
   setTimeout(shuffleBoxes, 300);
 });
-
 /* ===== INICIO ===== */
 createBoxes();
 </script>
