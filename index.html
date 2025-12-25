@@ -149,14 +149,14 @@ button:active {
 
 <h1>🎄 El Caga Tió</h1>
 
-<img id="tio" src="img/tio.png">
+<img id="tio" src="tio.png">
 
 <div id="boxes"></div>
 
 <button id="hitBtn">🪵 Pegar al Tió</button>
 
 <div id="kid" class="hidden">
-  <img src="img/kid.png">
+  <img src="kid.png">
   <p id="request"></p>
 </div>
 
@@ -199,7 +199,7 @@ function createBoxes() {
     box.dataset.item = theme;
 
     const img = document.createElement("img");
-    img.src = `img/${theme}/${imgName}.png`;
+    img.src = `${imgName}.png`;
 
     box.appendChild(img);
     boxesContainer.appendChild(box);
