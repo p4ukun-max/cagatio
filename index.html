@@ -150,13 +150,13 @@ const gifts = {
 };
 
 const tioSprites = [
-  "img/tio/sprite_0.png",
-  "img/tio/sprite_1.png",
-  "img/tio/sprite_2.png",
-  "img/tio/sprite_3.png",
-  "img/tio/sprite_4.png",
-  "img/tio/sprite_5.png",
-  "img/tio/sprite_6.png"
+  "sprite_0.png",
+  "sprite_1.png",
+  "sprite_2.png",
+  "sprite_3.png",
+  "sprite_4.png",
+  "sprite_5.png",
+  "sprite_6.png"
 ];
 
 let boxes = [];
@@ -180,7 +180,7 @@ function createBoxes() {
     box.dataset.item = theme;
 
     const img = document.createElement("img");
-    img.src = `img/${theme}/${imgName}.png`;
+    img.src = `${imgName}.png`;
 
     box.appendChild(img);
     boxesContainer.appendChild(box);
