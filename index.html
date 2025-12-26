@@ -79,6 +79,7 @@ h1 {
   justify-content: center;
   cursor: pointer;
   transition: transform 0.6s ease;
+  will-change: transform;
 }
 
 .box img {
@@ -226,7 +227,7 @@ function animateTio() {
       tio.src = tioSprites[5];
       isAnimatingTio = false;
     }
-  }, 77);
+  }, 65);
 }
 
 
@@ -235,19 +236,41 @@ function shuffleBoxes() {
   canChoose = false;
   message.textContent = "";
 
+  // 1️⃣ Guardar posiciones iniciales
+  const firstRects = boxes.map(box => box.getBoundingClientRect());
+
+  // 2️⃣ Reordenar el array (nuevo orden real)
+  boxes.sort(() => Math.random() - 0.5);
+
+  // 3️⃣ Aplicar el nuevo orden en el DOM
+  boxes.forEach(box => boxesContainer.appendChild(box));
+
+  // 4️⃣ Guardar posiciones finales
+  const lastRects = boxes.map(box => box.getBoundingClientRect());
+
+  // 5️⃣ Invertir (levantar + desplazar)
   boxes.forEach((box, i) => {
-    setTimeout(() => {
-      const offset = Math.random() * 40 - 20;
-      box.style.transform = `translateY(${offset}px) rotate(${Math.random() * 10 - 5}deg)`;
-    }, i * 80);
+    const dx = firstRects[i].left - lastRects[i].left;
+    const dy = firstRects[i].top - lastRects[i].top;
+
+    box.style.transform = `
+      translate(${dx}px, ${dy - 40}px) 
+      scale(1.1)
+    `;
   });
 
+  // 6️⃣ Forzar reflow
+  boxesContainer.offsetHeight;
+
+  // 7️⃣ Animar al sitio final
+  boxes.forEach(box => {
+    box.style.transform = "translate(0, 0) scale(1)";
+  });
+
+  // 8️⃣ Habilitar selección al final
   setTimeout(() => {
-    boxes.sort(() => Math.random() - 0.5);
-    boxes.forEach(box => boxesContainer.appendChild(box));
-    boxes.forEach(box => box.style.transform = "translateY(0) rotate(0)");
     canChoose = true;
-  }, 900);
+  }, 650);
 }
 
 /* ===== BOTÓN ===== */
