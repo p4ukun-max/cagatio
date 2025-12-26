@@ -157,8 +157,7 @@ const tioSprites = [
   "sprite_2.png",
   "sprite_3.png",
   "sprite_4.png",
-  "sprite_5.png",
-  "sprite_6.png"
+  "sprite_5.png"
 ];
 
 let boxes = [];
@@ -195,8 +194,8 @@ function createBoxes() {
 
       message.textContent =
         box.dataset.item === correctTheme
-          ? "?? ¡Regalo correcto!"
-          : "?? ¡Carbón!";
+          ? "¡Regalo correcto!"
+          : "¡Carbón!";
 
       canChoose = false;
     });
@@ -224,7 +223,7 @@ function animateTio() {
 
     if (frame >= totalFrames) {
       clearInterval(interval);
-      tio.src = tioSprites[6];
+      tio.src = tioSprites[5];
       isAnimatingTio = false;
     }
   }, 77);
