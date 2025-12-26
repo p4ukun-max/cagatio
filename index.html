@@ -60,19 +60,20 @@ h1 {
 }
 
 /* ===== CAJAS ===== */
+/* ===== CAJAS: 4 EN LÍNEA (MÓVIL) ===== */
 #boxes {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-  margin: 20px auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 SIEMPRE en línea */
+  gap: 8px;
+  margin: 16px auto;
+  max-width: 300px; /* controla que no se rompa */
 }
 
 .box {
   width: 100%;
-  height: 90px;
+  aspect-ratio: 1; /* cuadradas */
   background: #8b4513;
-  border-radius: 14px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -81,13 +82,14 @@ h1 {
 }
 
 .box img {
-  width: 70px;
+  width: 40px; /* pequeñas pero visibles */
   transition: opacity 0.3s ease;
 }
 
 .box.hide-content img {
   opacity: 0;
 }
+
 
 /* ===== BOTÓN ===== */
 button {
@@ -171,7 +173,7 @@ function createBoxes() {
 
   const themes = Object.keys(gifts)
     .sort(() => Math.random() - 0.5)
-    .slice(0, 5);
+    .slice(0, 4);
 
   themes.forEach(theme => {
     const imgName = gifts[theme][Math.floor(Math.random() * 5)];
